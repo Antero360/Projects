@@ -1,0 +1,11 @@
+name: Horusec-Tester
+
+on: pull_request
+
+jobs:
+  sec-scan:
+    name: Run security scan
+    runs-on: self-hosted
+    steps:
+      - name: Open cmd
+        run: cmd.exe
