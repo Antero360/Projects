@@ -7,5 +7,10 @@ jobs:
     name: Run security scan
     runs-on: self-hosted
     steps:
+      - name: Checkout Branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
       - name: Open cmd
-        run: cmd.exe
+        run: cmd.exe echo ${{ github.event.pull_request.labels.*.name }}
