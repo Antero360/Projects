@@ -13,5 +13,5 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Open powershell
-        run:  testing.ps1 ${{ github.event.pull_request.labels.*.name }}
+        run:  ..\..\..\testing.ps1 ${{ github.event.pull_request.labels.*.name }}
         shell: pwsh
