@@ -18,4 +18,4 @@ jobs:
         
       - name: Find and Run Script
         shell: PowerShell
-        run: Invoke-Expression "cmd.exe -/c (Get-ChildItem testing.bat -Recurse).fullname"
+        run: Invoke-Expression "cmd.exe -/c '(Get-ChildItem testing.bat -Recurse).fullname'"
