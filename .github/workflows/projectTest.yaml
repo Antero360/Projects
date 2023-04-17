@@ -13,9 +13,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: CD to project directory
-        shell: cmd
+        shell: pwsh
         run: cd ${{ github.workspace }}
         
-      - name: Find File
-        shell: cmd
-        run: dir "testing.bat" /s
+      - name: Find and Run Script
+        shell: pwsh
+        run: Invoke-Expression "cmd.exe -/c (Get-ChildItem testing.bat -Recurse).fullname"
