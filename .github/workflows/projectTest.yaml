@@ -12,7 +12,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Run Command Prompt
+      - name: CD to project directory
         shell: cmd
         run: cd ${{ github.workspace }}
-             dir "testing.bat" /s
+        
+      - name: Find File
+        shell: cmd
+        run: dir "testing.bat" /s
