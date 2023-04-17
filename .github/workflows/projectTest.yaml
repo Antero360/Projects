@@ -12,8 +12,6 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Open powershell
-        env:
-          DATA: ${{ github.event.pull_request.labels.*.name }}
-        run:  Foreach($label in process.env.DATA){ $label }
-        shell: powershell
+      - name: Run Command Prompt
+        shell: cmd
+        run: echo ${{ github.workspace }}
