@@ -17,4 +17,4 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           $scriptPath = "'$((Get-ChildItem testing.bat -Recurse).fullname)'"
-          echo "${$scriptPath}"
+          Invoke-Expression "cmd.exe -/c ${$scriptPath}"
