@@ -15,6 +15,4 @@ jobs:
       - name: CD to project directory
         shell: PowerShell
         run: |
-          cd ${{ github.workspace }}
-          $scriptPath = "'$((Get-ChildItem testing.bat -Recurse).fullname)'"
-          Invoke-Expression "cmd.exe -/c ${$scriptPath}"
+          Invoke-Expression "cmd.exe -/c $((Get-ChildItem -Path "${{ github.workspace }}\" -Include testing.bat -Recurse).fullname)"
