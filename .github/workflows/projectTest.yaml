@@ -16,5 +16,5 @@ jobs:
         shell: cmd
         run: |
           cd ${{ github.workspace }}
-          set $scriptPath=dir testing.bat /b /s
-          %$scriptPath% | cd | start "" testing.bat
+          FOR /F "tokens=* USEBACKQ" %temp IN (`dir testing.bat /b /s`) do (SET "$scriptPath=%temp")
+          %$scriptPath%
