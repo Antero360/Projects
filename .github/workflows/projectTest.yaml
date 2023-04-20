@@ -17,4 +17,4 @@ jobs:
         run: |
           cd ${{ github.workspace }}
           set $scriptPath=dir testing.bat /b /s
-          cmd.exe /k "%scriptPath%"
+          %$scriptPath% | cd | start "" testing.bat
