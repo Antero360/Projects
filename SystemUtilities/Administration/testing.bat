@@ -4,5 +4,5 @@ set "pathToScanner=c:\users\antero360\source\tools\security\horusec\horusec.exe"
 set "pathToResults=%pathToProject%\testing-results.json"
 
 :: call command prompt to execute call to scanner 
-cmd.exe /k "%pathToScanner% start -p %pathToProject% --output-format json --json-output-file %pathToResults% --disable-docker"
+cmd.exe /k "%pathToScanner% start -p %pathToProject% --output-format json --json-output-file %pathToResults%"
 
