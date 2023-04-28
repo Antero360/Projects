@@ -27,7 +27,12 @@ jobs:
           set "vulnFiles=findstr /r \"file\": %$resultsPath% | sort /unique"
           for /f %%c in ('findstr /r \"file\": %$resultsPath% ^| sort /unique ^| find /c /v ""') do (set count=%%c)
           set /a vulnFilesCount=%count% + 0
-          echo Total affected files: %vulnFilesCount%
-          echo "-----------------------------"
-          %vulnFiles%
+          if %vulnFilesCount% gtr 0 (
+            echo "Potential vulnerabilities found! Please see %resultsPath% for more details."
+            echo Total affected files: %vulnFilesCount%
+            echo -----------------------------
+            %vulnFiles%
+            exit 1
+          )
+          echo "No vulnerabilities found."
 
