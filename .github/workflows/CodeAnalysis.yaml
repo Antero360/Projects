@@ -1,0 +1,31 @@
+name: Horusec-Tester
+
+on: pull_request
+
+jobs:
+  sec-scan:
+    name: Run security scan
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: CD to project directory
+        shell: cmd
+        run: |
+          cd ${{ github.workspace }}
+          FOR /F "tokens=* USEBACKQ" %%p IN (`dir CodeAnalysisScanner.bat /b /s`) do (SET "$scriptPath=%%p")
+          %$scriptPath%
+          
+      - name: Analysis
+        shell: cmd
+        run: |
+          cd ${{ github.workspace }}
+          FOR /F "tokens=* USEBACKQ" %%p IN (`dir testing-results.json /b /s`) do (SET "$resultsPath=%%p")
+          set "vulnFiles=findstr /r \"file\": %$resultsPath% | sort /unique"
+          for /f %%c in ('findstr /r \"file\": %$resultsPath% ^| sort /unique ^| find /c /v ""') do (set vulnFilesCount=%%c)
+          echo Total affected files: %vulnFilesCount%
+          echo -----------------------------
+          %vulnFiles%
