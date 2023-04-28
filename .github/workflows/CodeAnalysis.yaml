@@ -33,4 +33,4 @@ jobs:
             %vulnFiles%
             exit 1
           )
-          else (echo "No vulnerabilities found.")
+          echo "No vulnerabilities found."
