@@ -25,7 +25,8 @@ jobs:
           cd ${{ github.workspace }}
           FOR /F "tokens=* USEBACKQ" %%p IN (`dir testing-results.json /b /s`) do (SET "$resultsPath=%%p")
           set "vulnFiles=findstr /r \"file\": %$resultsPath% | sort /unique"
-          for /f %%c in ('findstr /r \"file\": %$resultsPath% ^| sort /unique ^| find /c /v ""') do (set vulnFilesCount=%%c)
+          for /f %%c in ('findstr /r \"file\": %$resultsPath% ^| sort /unique ^| find /c /v ""') do (set count=%%c)
+          set /a vulnFilesCount=%count% + 0
           if %vulnFilesCount% gtr 5 (
             echo "Potential vulnerabilities found! Please see %resultsPath% for more details."
             echo Total affected files: %vulnFilesCount%
