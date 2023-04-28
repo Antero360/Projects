@@ -1,0 +1,358 @@
+﻿@using System.Web.Optimization
+@using BBSCatalyst.Web.App_Start
+@using EPiServer.Framework.Localization
+@model BBSCatalyst.ViewModels.Commerce.ProductDetailsViewModel
+
+@section HeadEnd{
+  @Html.Action("ShareThisHeadTag", "Shared")  
+}
+
+@if (!Model.Variations.Any())
+{
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 text-center">
+                <span>@LocalizationService.Current.GetString("/Product/Index/NoVariationsPrompt")</span>
+            </div>
+        </div>
+    </div>
+
+    return;
+}
+
+<script>
+    var variations = @Html.Raw(Json.Encode(Model.Variations));
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="product-wrapper col-xs-12">
+      <div class="row">
+        <div class="product-details-wrapper col-xs-12">
+          <div class="row">
+              <div class="product-details-left product-images col-xs-12 col-sm-4 hidden-xs">
+                  <div class="product-image-container">
+                      <img title="@Model.PrimaryImage.AltText" src="@Model.PrimaryImage.Url" data-title="@Model.Name" class="img-responsive img-rounded center-block" id="primary-image">
+                      <div class="image-big-view text-center">
+                          <a href="#" id="biggerImage">@LocalizationService.Current.GetString("/Product/Index/ViewLargerPromt")</a>
+                      </div>
+                      <div class="product-details-alt-images-wrapper">
+                          <div class="row">
+                              @for (int i = 0; i < Model.AltImages.Count(); i++)
+                              {
+                                  <div class="product-details-alt-images-item col-xs-3 col-sm-4 col-md-3@(i == Model.AltImages.Count() - 1 ? " pull-right" : string.Empty)">
+                                      <img title="@Model.AltImages[i].AltText" src="@Model.AltImages[i].Url" class="img-responsive">
+                                  </div>
+                              }
+                          </div>
+                      </div>
+                  </div>
+              </div>
+            <div class="product-details-left product-carousel col-xs-12 hidden-sm hidden-md hidden-lg">
+              <div data-ride="carousel" class="carousel slide center-block" id="product_carousel">
+                <!-- Indicators -->
+                <ol class="carousel-indicators">
+                  <li class="active" data-slide-to="0" data-target="#product_carousel"></li>
+                  @for (int i = 0; i < Model.AltImages.Count(); i++)
+                  {
+                    <li data-slide-to="@(i+1)" data-target="#product_carousel"></li>
+                  }
+                </ol>
+
+                <!-- Wrapper for slides -->
+                <div class="carousel-inner">
+                  <div class="item active">
+                    <img title="@Model.PrimaryImage.AltText" src="@Model.PrimaryImage.Url" class="img-responsive">
+                  </div>
+                  @for (int i = 0; i < Model.AltImages.Count(); i++)
+                  {
+                    <div class="item">
+                    <img title="@Model.AltImages[i].AltText" src="@Model.AltImages[i].Url" class="img-responsive">
+                  </div>
+                  }
+                </div>
+
+                <!-- Controls -->
+                <a data-slide="prev" role="button" href="#product_carousel" class="left carousel-control">
+                  <span class="glyphicon glyphicon-chevron-left"></span>
+                </a>
+                <a data-slide="next" role="button" href="#product_carousel" class="right carousel-control">
+                  <span class="glyphicon glyphicon-chevron-right"></span>
+                </a>
+              </div>
+            </div>
+            <div class="product-details-center col-xs-12 col-sm-4 js-variation">
+                  <h1>@Model.Name</h1>
+                <span>@Html.Raw(Model.Description)</span>
+                <div class="pull-left">
+                    @if (Model.Variations.Length > 1)
+                    {
+                        @Html.DropDownList("variations-select", Model.VariationSelectListItems, new { @class = "form-control", @id = "variations-select" })
+                    }
+                </div>
+                <div class="clearfix"></div>
+                  <div class="product-details-meta">
+                      @for (var i = 0; i < Model.Variations.Length; i++)
+                      {
+                          <div id="price-wrapper-@Model.Variations[i].Code" class="price-wrapper @(i > 0 ? "hidden" : string.Empty)">
+                              @Html.Partial("Commerce/_Price", Model.Variations[i].PriceViewModel)
+                          </div>
+                      }
+                      @Html.Raw(Model.StockAvailability)
+                      @if (Model.ReviewScore.HasValue)
+                      {
+                          Html.RenderPartial("Commerce/_Rating", Model.ReviewScore.Value);
+                      }
+                  </div>
+                  <div class='product-moreinfo @(string.IsNullOrEmpty(Model.MoreInfo) ? "hidden" : "")'>
+                      <button class="btn btn-info btn-xs" data-toggle="collapse" data-target="#moreinfo" type="button">More Info...</button>
+                      <div id="moreinfo" class="collapse">
+                          @Html.Raw(Model.MoreInfo)
+                      </div>
+                  </div>    
+                    </div>
+
+              <div class="product-details-right col-xs-12 col-sm-4 js-variation">
+                  @if (Model.ShowBuyButton && Model.IsCurrentUserAuthorized)
+                  {
+                      <div class="add-to-cart-parent">
+                          <div class="form-group add-to-cart-error hidden">
+                              <div class="alert alert-danger"></div>
+                          </div>
+                          @using (Html.BeginForm("AddToCart", "ShoppingCart", FormMethod.Post, new
+                          {
+                              id = "addToShoppingCartForm",
+                              role = "form"
+                          }))
+                          {
+                              <div class="add-to-cart-wrapper text-center js-addtocart-code"
+                                   data-code="@Model.Variations[0].Code"
+                                   data-url="@Url.Action("AddToCart", "Product", null)">
+                                  @Html.ValidationMessageFor(x => x.Qty)
+                                  <div class="form-group has-error hidden">
+                                      <label for="pickProductOption" class="control-label">Options: </label>
+                                      <div class="btn-group">
+                                          <button id="pickProductOption" data-toggle="dropdown" class="btn btn-default dropdown-toggle product-option pick-option" type="button">Size Size Size Size Size Size Size Size Size Size Size Size Size Size Size Size <span class="caret"></span></button>
+                                          <ul role="menu" class="dropdown-menu product-option pick-option">
+                                              <li><a href="#">1/2 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in 1/2 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in</a></li>
+                                              <li><a href="#">1 in</a></li>
+                                              <li><a href="#">5 in</a></li>
+                                              <li><a href="#">10 in</a></li>
+                                          </ul>
+                                      </div>
+                                      <select class="btn btn-default product-option">
+                                          <option value="A">1/2 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in 1/2 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in 1/2 in</option>
+                                          <option value="B">1 in</option>
+                                          <option selected="selected" value="C">5 in</option>
+                                          <option value="D">10 in</option>
+                                      </select>
+                                  </div>
+                                  <div class="form-group quantity-wrapper js-variation-quantity">
+                                      @if (Model.IsCurrentUserAuthorized)
+                                      {
+                                          @Html.LabelFor(x => x.Qty, "Quantity: ", new {@class = "control-label"})
+                                          @Html.TextBoxFor(x => x.Qty, new {@class = "form-control qty-option"})
+                                      }
+                                  </div>
+                                  <div class="form-group">
+                                      @if (Model.IsCurrentUserAuthorized)
+                                      {
+                                          <a class="btn btn-primary add-to-cart-link" href="#">
+                                              <span>@LocalizationService.Current.GetString("/Product/Index/AddToCartPrompt")</span>
+                                          </a>
+                                      }
+                                  </div>
+                                  <div class="form-group hidden">
+                                      @if (Model.IsCurrentUserAuthorized)
+                                      {
+                                          <a href="#">Add To Wishlist</a>
+                                      }
+                                  </div>
+                              </div>
+                          }
+                      </div>
+                  }
+                  <div class="share-social text-center">
+                      @Html.Action("ShareThisButton", "Shared")
+                  </div>
+              </div>
+          </div>
+        </div>
+        <div class="assets-list-wrapper col-xs-12">
+            <div class="panel-group expand-sm" id="assets_accordian">
+                <div class="panel panel-info @(Model.TechnicalSpecificationsHidden ? "hidden" : string.Empty)">
+                    <div class="panel-heading">
+                        <div class="panel-title">
+                            <a data-toggle="collapse" href="#technicalSpecifications">Technical Specifications <span class="badge pull-right"><i class="fa fa-caret-down"></i></span></a>
+                        </div>
+                    </div>
+                    <div id="technicalSpecifications" class="panel-collapse expand-sm collapse">
+                        <div class="panel-body">
+                            <div class="product-details-attributes">
+                                <div class="row">
+                                    <div class="col-xs-12 col-md-6">
+                                        <table class="table table-striped table-bordered table-hover table-condensed">
+                                            <tbody>
+                                            <tr class='product-attributes-row @(string.IsNullOrEmpty(Model.SKU) ? "hidden" : string.Empty) '>
+                                                <td class="product-attributes-label text-right">
+                                                    <label>SKU: </label>
+                                                </td>
+                                                <td class="product-attributes-data">
+                                                    @Model.SKU
+                                                </td>
+                                            </tr>
+                                            <tr class='product-attributes-row @(string.IsNullOrEmpty(Model.Brand) ? "hidden" : string.Empty) '>
+                                                <td class="product-attributes-label text-right">
+                                                    <label>Brand: </label>
+                                                </td>
+                                                <td class="product-attributes-data">
+                                                    @Model.Brand
+                                                </td>
+                                            </tr>
+                                            <tr class='product-attributes-row @(string.IsNullOrEmpty(Model.ManufacturerPartNo) ? "hidden" : string.Empty) '>
+                                                <td class="product-attributes-label text-right">
+                                                    <label>Manufacturer Part: </label>
+                                                </td>
+                                                <td class="product-attributes-data">
+                                                    @Model.ManufacturerPartNo
+                                                </td>
+                                            </tr>
+                                            <tr class='product-attributes-row @(string.IsNullOrEmpty(Model.MoreInfo) ? "hidden" : string.Empty) '>
+                                                <td class="product-attributes-label text-right">
+                                                    <label>More Info: </label>
+                                                </td>
+                                                <td class="product-attributes-data">
+                                                    @Html.Raw(Model.MoreInfo)
+                                                </td>
+                                            </tr>
+                                            </tbody></table>
+                                    </div>
+                                    @for (int i = 0; i < Model.Variations.Length; i++)
+                                    {
+                                        <div class="col-xs-12 col-md-6 variation-details @(i > 0 ? "hidden" : string.Empty)" id="variation-details-@Model.Variations[i].Code">
+                                            <table class="table table-striped table-bordered table-hover table-condensed">
+                                                <tbody>
+                                                    <tr class='product-attributes-row @(string.IsNullOrEmpty(Model.Variations[i].Weight) ? "hidden" : "")'>
+                                                        <td class="product-attributes-label text-right">
+                                                            <label>Shipping Weight: </label>
+                                                        </td>
+                                                        <td class="product-attributes-data">
+                                                            @Model.Variations[i].Weight lbs
+                                                        </td>
+                                                    </tr>
+                                                    <tr class='product-attributes-row @(string.IsNullOrEmpty(Model.Variations[i].Length) ? "hidden" : string.Empty) '>
+                                                        <td class="product-attributes-label text-right">
+                                                            <label>Length: </label>
+                                                        </td>
+                                                        <td class="product-attributes-data">
+                                                            @Model.Variations[i].Length
+                                                        </td>
+                                                    </tr>
+                                                    <tr class='product-attributes-row @(string.IsNullOrEmpty(Model.Variations[i].Width) ? "hidden" : string.Empty) '>
+                                                        <td class="product-attributes-label text-right">
+                                                            <label>Width: </label>
+                                                        </td>
+                                                        <td class="product-attributes-data">
+                                                            @Model.Variations[i].Width
+                                                        </td>
+                                                    </tr>
+                                                    <tr class='product-attributes-row @(string.IsNullOrEmpty(Model.Variations[i].Height) ? "hidden" : string.Empty) '>
+                                                        <td class="product-attributes-label text-right">
+                                                            <label>Height: </label>
+                                                        </td>
+                                                        <td class="product-attributes-data">
+                                                            @Model.Variations[i].Height
+                                                        </td>
+                                                    </tr>
+                                                    <tr class='product-attributes-row @(string.IsNullOrEmpty(Model.Variations[i].Diameter) ? "hidden" : string.Empty) '>
+                                                        <td class="product-attributes-label text-right">
+                                                            <label>Diameter: </label>
+                                                        </td>
+                                                        <td class="product-attributes-data">
+                                                            @Model.Variations[i].Diameter
+                                                        </td>
+                                                    </tr>
+                                                    <tr class='product-attributes-row @(string.IsNullOrEmpty(Model.Variations[i].TensileStrength) ? "hidden" : string.Empty) '>
+                                                        <td class="product-attributes-label text-right">
+                                                            <label>Tensil Strength: </label>
+                                                        </td>
+                                                        <td class="product-attributes-data">
+                                                            @Model.Variations[i].TensileStrength
+                                                        </td>
+                                                    </tr>
+                                                    <tr class='product-attributes-row @(string.IsNullOrEmpty(Model.Variations[i].Color) ? "hidden" : string.Empty) '>
+                                                        <td class="product-attributes-label text-right">
+                                                            <label>Color: </label>
+                                                        </td>
+                                                        <td class="product-attributes-data">
+                                                            @Model.Variations[i].Color
+                                                        </td>
+                                                    </tr>
+                                                    <tr class='product-attributes-row @(string.IsNullOrEmpty(Model.Variations[i].Material) ? "hidden" : string.Empty) '>
+                                                        <td class="product-attributes-label text-right">
+                                                            <label>Material: </label>
+                                                        </td>
+                                                        <td class="product-attributes-data">
+                                                            @Model.Variations[i].Material
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-info @(Model.VideoSectionHidden ? "hidden" : string.Empty)">
+                    <div class="panel-heading">
+                        <div class="panel-title">
+                            <a data-toggle="collapse" href="#videoSection">Videos <span class="badge pull-right"><i class="fa fa-caret-down"></i></span></a>
+                        </div>
+                    </div>
+                    <div id="videoSection" class="panel-collapse expand-sm collapse">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="hero-video col-xs-offset-1 col-xs-10 col-sm-offset-1 col-sm-6">
+                                    <div class="embed-responsive embed-responsive-16by9">
+                                        @Html.Raw(Model.PrimaryVideoEmbedCode)
+                                    </div>
+                                </div>
+                                @if (!string.IsNullOrEmpty(@Model.AltVideosPage))
+                                {
+                                    <div class="alt-videos col-xs-offset-1 col-xs-10 col-sm-offset-1 col-sm-3">
+                                        <a href="@Model.AltVideosPage"><button class="btn btn-info btn-lg" type="button">See More Videos...</button></a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-info hide">
+                    <div class="panel-heading">
+                        <div class="panel-title">
+                            <a data-toggle="collapse" href="#reviews">Reviews <span class="badge pull-right"><i class="fa fa-caret-down"></i></span></a>
+                        </div>
+                    </div>
+                    <div id="reviews" class="panel-collapse expand-sm collapse">
+                        <div class="panel-body">
+                            <div class="product-reviews-list">
+                                <div class="row">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @{Html.RenderPartial("Commerce/_Assets", Model.AssetsGroups);}
+                @{Html.RenderPartial("Commerce/_Associations", Model.Associations);}
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+  @Scripts.Render(BundleConfig.JQueryValidateJsBundle, BundleConfig.JQueryValidateExtensionRulesJsBundle, BundleConfig.ProductJsBundle)  
+}
