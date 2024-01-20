@@ -1,0 +1,16 @@
+bin/
+node_modules/
+obj/
+data/
+.vs/
+*.Setup/
+packages/
+Properties/
+*.sln
+*.njsproj
+*.csproj
+*.dll
+*.cache
+*.sql
+*.env
+*.config
